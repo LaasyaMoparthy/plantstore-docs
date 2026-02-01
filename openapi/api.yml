@@ -1,0 +1,241 @@
+openapi: 3.1.0
+
+servers:
+  - url: https://697b321a0e6ff62c3c5b47fb.mockapi.io
+    description: Sandbox server
+    x-fern-server-name: Sandbox
+
+info:
+  description: |
+    This is a sample Plant Store Server based on the OpenAPI 3.1 specification. It provides a comprehensive set of endpoints for managing plants, orders, and user authentication.
+
+    ### Key Features
+    - **Rich API Documentation**: Includes detailed examples and schema definitions.
+    - **Search Functionality**: Search for plants by tags or status.
+    - **User-Friendly Endpoints**: Login, logout, and retrieve user information.
+    - **Error Handling**: Clear and consistent error responses.
+
+    ### Developer Notes
+    - Use `api_key` for store endpoints requiring authorization.
+    - OAuth2 flow is available for plant-specific operations.
+
+  version: 1.0.18
+  title: Swagger Plant Store - OpenAPI 3.1
+  termsOfService: "http://buildwithfern.com/tos/"
+  contact:
+    name: Plant Store API Support
+    url: https://support.plantstore.dev
+    email: support@buildwithfern.com
+  license:
+    name: Apache 2.0
+    url: "http://www.apache.org/licenses/LICENSE-2.0.html"
+
+tags:
+  - name: plant
+    description: Everything about your Plants
+    externalDocs:
+      description: Plant API Documentation
+      url: https://docs.plantstore.dev/plants
+  - name: store
+    description: Access to Plantstore orders
+    externalDocs:
+      description: Order Management Guide
+      url: https://docs.plantstore.dev/orders
+  - name: user
+    description: Operations about user
+    externalDocs:
+      description: User Management API
+      url: https://docs.plantstore.dev/users
+  - name: webhook
+    description: Webhook management for plant events
+    externalDocs:
+      description: Webhook Integration Guide
+      url: https://docs.plantstore.dev/webhooks
+
+paths:
+  /plant:
+    post:
+      tags: [plant]
+      summary: Add a new plant to the store
+      operationId: addPlant
+      requestBody:
+        description: Details of the plant to add
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Plant"
+            examples:
+              example1:
+                summary: Add a Fern Plant
+                value:
+                  name: "Fern"
+                  category: "Indoor"
+                  tags: ["green", "leafy"]
+                  status: "available"
+      responses:
+        "200":
+          description: Plant successfully added
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PlantResponse"
+              examples:
+                exampleResponse:
+                  summary: Successful Plant Addition
+                  value:
+                    id: 101
+                    name: "Fern"
+                    status: "available"
+                    tags: ["green", "leafy"]
+        "405":
+          description: Invalid input
+
+    put:
+      tags: [plant]
+      summary: Update an existing plant
+      operationId: updatePlant
+      requestBody:
+        description: Updated details of the plant
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Plant"
+            examples:
+              example1:
+                summary: Update plant status
+                value:
+                  name: "Fern"
+                  category: "Indoor"
+                  tags: ["green", "leafy"]
+                  status: "sold"
+      responses:
+        "200":
+          description: Plant successfully updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PlantResponse"
+        "400":
+          description: Invalid ID supplied
+        "404":
+          description: Plant not found
+
+  /plant/search/status:
+    get:
+      tags: [plant]
+      summary: Search plants by status
+      operationId: searchPlantsByStatus
+      parameters:
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [available, pending, sold]
+      responses:
+        "200":
+          description: List of plants matching the status filter
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/PlantResponse"
+
+  /plant/search/tags:
+    get:
+      tags: [plant]
+      summary: Search plants by tags
+      operationId: searchPlantsByTags
+      responses:
+        "200":
+          description: List of plants matching the tags filter
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/PlantResponse"
+
+  /plant/{plantId}:
+    get:
+      tags: [plant]
+      summary: Find plant by ID
+      operationId: getPlantById
+      parameters:
+        - name: plantId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Plant details
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PlantResponse"
+
+webhooks:
+  plant.created:
+    post:
+      tags: [webhook]              # ✅ Step 4
+      operationId: newPlantWebhook # ✅ Step 4
+      summary: Plant Created Webhook
+      description: Fired whenever a new plant is added to the plant store catalog.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                event:
+                  type: string
+                  enum: [plant.created]
+                timestamp:
+                  type: string
+                  format: date-time
+                data:
+                  $ref: "#/components/schemas/PlantResponse"
+            examples:
+              plantCreatedExample:
+                summary: Example payload for plant.created
+                value:
+                  event: "plant.created"
+                  timestamp: "2026-02-01T18:22:41Z"
+                  data:
+                    id: 101
+                    name: "Fern"
+                    status: "available"
+                    tags: ["green", "leafy"]
+      responses:
+        "200":
+          description: Webhook processed successfully
+        "400":
+          description: Invalid webhook payload
+
+components:
+  schemas:
+    Plant:
+      type: object
+      properties:
+        name: { type: string }
+        category: { type: string }
+        tags:
+          type: array
+          items: { type: string }
+        status:
+          type: string
+          enum: [available, pending, sold]
+
+    PlantResponse:
+      type: object
+      properties:
+        id: { type: integer }
+        name: { type: string }
+        status: { type: string }
+        tags:
+          type: array
+          items: { type: string }
