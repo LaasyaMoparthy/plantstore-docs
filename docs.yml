@@ -3,15 +3,16 @@
 instances:
   - url: laasya-moparthy-demo.docs.buildwithfern.com
 
-title: Plant Store API Documentation
+title: laasya-moparthy-demo | Documentation
 
 announcement:
-  message: "Welcome to the Plant Store API documentation."
+  message: "Welcome to the Fern take home docs assignment [→](https://www.buildwithfern.com/careers)"
 
 layout:
   searchbar-placement: header
   page-width: full
   tabs-placement: header
+
 
 settings:
   dark-mode-code: true
@@ -24,28 +25,21 @@ tabs:
   api-reference:
     display-name: API Reference
   instructions:
-    display-name: Guides
+    display-name: Instructions
 
 navigation:
   - tab: home
     layout:
       - page: Home
         path: docs/pages/landingpage.mdx
-
   - tab: api-reference
     layout:
       - api: API Reference
-
-      # Webhooks
-      - section: Webhooks
-        contents:
-          - subpackage_webhook.newPlantWebhook
-
   - tab: instructions
     layout:
-      - page: Guides
+      - page: Instructions
         path: docs/pages/instructions.mdx
-
+  
 colors:
   accentPrimary:
     dark: "#FFFFFF"
@@ -54,18 +48,18 @@ colors:
     light: "#FFFFFF"
 
 page-actions:
-  options:
+  options: 
     chatgpt: true
     claude: true
     cursor: true
-
-css:
+  
+css: 
   - docs/assets/main.css
 
 typography:
   bodyFont:
     name: clarkson
-    paths:
+    paths: 
       - path: docs/assets/fonts/clarkson-300.woff2
         weight: 300
         style: normal
