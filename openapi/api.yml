@@ -7,25 +7,20 @@ servers:
 
 info:
   description: |
-    This is a sample Plant Store Server based on the OpenAPI 3.1 specification. It provides a comprehensive set of endpoints for managing plants, orders, and user authentication.
+    The Plant Store API lets you manage your plant catalog, search inventory, and receive real-time updates via webhooks.
 
-    ### Key Features
-    - **Rich API Documentation**: Includes detailed examples and schema definitions.
-    - **Search Functionality**: Search for plants by tags or status.
-    - **User-Friendly Endpoints**: Login, logout, and retrieve user information.
-    - **Error Handling**: Clear and consistent error responses.
-
-    ### Developer Notes
-    - Use `api_key` for store endpoints requiring authorization.
-    - OAuth2 flow is available for plant-specific operations.
+    ### Getting Started
+    - Use the **Sandbox** environment to try endpoints without authentication.
+    - **Python** examples are shown by default—switch languages in the code snippet dropdown.
+    - Toggle the **API Explorer** to run requests directly from the docs.
 
   version: 1.0.18
   title: Swagger Plant Store - OpenAPI 3.1
-  termsOfService: "http://buildwithfern.com/tos/"
+  termsOfService: "https://plantstore.dev/terms"
   contact:
     name: Plant Store API Support
     url: https://support.plantstore.dev
-    email: support@buildwithfern.com
+    email: support@plantstore.dev
   license:
     name: Apache 2.0
     url: "http://www.apache.org/licenses/LICENSE-2.0.html"
@@ -58,6 +53,23 @@ paths:
       tags: [plant]
       summary: Add a new plant to the store
       operationId: addPlant
+      description: |
+        Add a new plant to your catalog. Include name, category, tags, and status.
+        The Sandbox environment returns a mock response for testing.
+      x-fern-examples:
+        - name: Add a Boston Fern
+          request:
+            body:
+              name: "Boston Fern"
+              category: "Indoor"
+              tags: ["green", "low-light", "air-purifying"]
+              status: "available"
+          response:
+            body:
+              id: 101
+              name: "Boston Fern"
+              status: "available"
+              tags: ["green", "low-light", "air-purifying"]
       requestBody:
         description: Details of the plant to add
         required: true
@@ -127,9 +139,12 @@ paths:
       tags: [plant]
       summary: Search plants by status
       operationId: searchPlantsByStatus
+      description: Filter your plant catalog by availability status—available, pending, or sold.
       parameters:
         - name: status
           in: query
+          required: true
+          description: Filter by plant availability
           schema:
             type: string
             enum: [available, pending, sold]
@@ -142,12 +157,25 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/PlantResponse"
+              examples:
+                available:
+                  summary: Available plants
+                  value:
+                    - id: 101
+                      name: "Boston Fern"
+                      status: "available"
+                      tags: ["green", "indoor"]
+                    - id: 102
+                      name: "Pothos"
+                      status: "available"
+                      tags: ["trailing", "easy-care"]
 
   /plant/search/tags:
     get:
       tags: [plant]
       summary: Search plants by tags
       operationId: searchPlantsByTags
+      description: Find plants by one or more tags (e.g., green, indoor, low-light).
       responses:
         "200":
           description: List of plants matching the tags filter
@@ -157,16 +185,26 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/PlantResponse"
+              examples:
+                indoor:
+                  summary: Indoor plants
+                  value:
+                    - id: 101
+                      name: "Boston Fern"
+                      status: "available"
+                      tags: ["green", "indoor"]
 
   /plant/{plantId}:
     get:
       tags: [plant]
       summary: Find plant by ID
       operationId: getPlantById
+      description: Retrieve details for a single plant by its unique ID.
       parameters:
         - name: plantId
           in: path
           required: true
+          description: The unique plant identifier
           schema:
             type: integer
       responses:
@@ -176,12 +214,20 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/PlantResponse"
+              examples:
+                fern:
+                  summary: Boston Fern
+                  value:
+                    id: 101
+                    name: "Boston Fern"
+                    status: "available"
+                    tags: ["green", "indoor", "air-purifying"]
 
 webhooks:
   plant.created:
     post:
-      tags: [webhook]              # ✅ Step 4
-      operationId: newPlantWebhook # ✅ Step 4
+      tags: [webhook]
+      operationId: newPlantWebhook
       summary: Plant Created Webhook
       description: Fired whenever a new plant is added to the plant store catalog.
       requestBody:

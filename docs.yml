@@ -3,10 +3,10 @@
 instances:
   - url: laasya-moparthy-demo.docs.buildwithfern.com
 
-title: laasya-moparthy-demo | Documentation
+title: Plant Store | Documentation
 
 announcement:
-  message: "Welcome to the Fern take home docs assignment [→](https://www.buildwithfern.com/careers)"
+  message: "Welcome to the Plant Store API documentation."
 
 layout:
   searchbar-placement: header
@@ -14,9 +14,17 @@ layout:
   tabs-placement: header
 
 
+default-language: python
+
 settings:
   dark-mode-code: true
-  http-snippets: true
+  http-snippets:
+    - python
+    - typescript
+    - curl
+
+ai-examples:
+  style: "Use names and values inspired by plants and gardening."
 
 tabs:
   home:
@@ -24,8 +32,6 @@ tabs:
     skip-slug: true
   api-reference:
     display-name: API Reference
-  instructions:
-    display-name: Instructions
 
 navigation:
   - tab: home
@@ -34,11 +40,7 @@ navigation:
         path: docs/pages/landingpage.mdx
   - tab: api-reference
     layout:
-      - api: API Reference
-  - tab: instructions
-    layout:
-      - page: Instructions
-        path: docs/pages/instructions.mdx
+      - api: openapi/api.yml
   
 colors:
   accentPrimary:
@@ -47,12 +49,6 @@ colors:
   background:
     light: "#FFFFFF"
 
-page-actions:
-  options: 
-    chatgpt: true
-    claude: true
-    cursor: true
-  
 css: 
   - docs/assets/main.css
 
