@@ -223,6 +223,85 @@ paths:
                     status: "available"
                     tags: ["green", "indoor", "air-purifying"]
 
+  /user/login:
+    get:
+      tags: [user]
+      summary: Logs user into the system
+      operationId: loginUser
+      description: Authenticate a user and receive a session token.
+      parameters:
+        - name: username
+          in: query
+          required: true
+          description: The username for login
+          schema:
+            type: string
+        - name: password
+          in: query
+          required: true
+          description: The password for login
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Successful login
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LoginResponse"
+              examples:
+                success:
+                  summary: Successful login
+                  value:
+                    token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+                    expiresIn: 3600
+        "400":
+          description: Invalid username or password
+
+  /user/logout:
+    get:
+      tags: [user]
+      summary: Logs out current logged-in user session
+      operationId: logoutUser
+      description: Invalidate the current user session.
+      responses:
+        "200":
+          description: Successful logout
+        "401":
+          description: Not logged in
+
+  /user/{username}:
+    get:
+      tags: [user]
+      summary: Get user by username
+      operationId: getUserByUsername
+      description: Retrieve user profile information by username.
+      parameters:
+        - name: username
+          in: path
+          required: true
+          description: The username to look up
+          schema:
+            type: string
+      responses:
+        "200":
+          description: User profile
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+              examples:
+                gardener:
+                  summary: Example user
+                  value:
+                    id: 1
+                    username: "plantlover42"
+                    email: "plantlover@garden.com"
+                    firstName: "Rose"
+                    lastName: "Gardner"
+        "404":
+          description: User not found
+
 webhooks:
   plant.created:
     post:
@@ -235,16 +314,7 @@ webhooks:
         content:
           application/json:
             schema:
-              type: object
-              properties:
-                event:
-                  type: string
-                  enum: [plant.created]
-                timestamp:
-                  type: string
-                  format: date-time
-                data:
-                  $ref: "#/components/schemas/PlantResponse"
+              $ref: "#/components/schemas/PlantCreatedWebhookPayload"
             examples:
               plantCreatedExample:
                 summary: Example payload for plant.created
@@ -285,3 +355,42 @@ components:
         tags:
           type: array
           items: { type: string }
+
+    PlantCreatedWebhookPayload:
+      type: object
+      description: Payload sent when a new plant is created
+      required:
+        - event
+        - timestamp
+        - data
+      properties:
+        event:
+          type: string
+          enum: [plant.created]
+          description: The event type
+        timestamp:
+          type: string
+          format: date-time
+          description: When the event occurred
+        data:
+          $ref: "#/components/schemas/PlantResponse"
+          description: The plant that was created
+
+    User:
+      type: object
+      properties:
+        id: { type: integer }
+        username: { type: string }
+        email: { type: string }
+        firstName: { type: string }
+        lastName: { type: string }
+
+    LoginResponse:
+      type: object
+      properties:
+        token:
+          type: string
+          description: JWT session token
+        expiresIn:
+          type: integer
+          description: Token expiration time in seconds
